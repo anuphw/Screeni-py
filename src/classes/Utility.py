@@ -201,8 +201,8 @@ class tools:
             response = str(input(colorText.BOLD + colorText.WARN +
                                  '[>] Do you want to save the results in excel file? [Y/N]: ')).upper()
         except ValueError:
-            response = 'Y'
-        if response != 'N':
+            response = 'N'
+        if response == 'Y':
             filename = 'screenipy-result_' + \
                 datetime.datetime.now().strftime("%d-%m-%y_%H.%M.%S")+".xlsx"
             df.to_excel(filename)

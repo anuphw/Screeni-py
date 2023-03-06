@@ -198,12 +198,12 @@ class tools:
         data = data.replace([np.inf, -np.inf], 0)
         recent = data.head(1)
         if recent['VolMA'][0] == 0: # Handles Divide by 0 warning
-            saveDict['Value'] = "0"
-            screenDict['Value'] = colorText.BOLD + colorText.WARN + "0" + colorText.END
+            saveDict['Value'] = 0
+            screenDict['Value'] = 0 # colorText.BOLD + colorText.WARN + "0" + colorText.END
             return True
-        value = (recent['Volume'][0]*recent['Close'][0])// 10e7 # Traded value in cr
-        saveDict['Value'] = str(value)
-        screenDict['Value'] = str(value)
+        value = (recent['Volume'][0]*recent['Close'][0])// 1e7 # Traded value in cr
+        saveDict['Value'] = value
+        screenDict['Value'] = value
         return False
 
     # Validate if volume of last day is higher than avg

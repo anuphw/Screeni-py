@@ -369,7 +369,7 @@ def main(testing=False, testBuild=False, downloadOnly=False):
             except Exception as e:
                 break
 
-        screenResults.sort_values(by=['Stock'], ascending=True, inplace=True)
+        screenResults.sort_values(by=['Value'], ascending=True, inplace=True)
         saveResults.sort_values(by=['Stock'], ascending=True, inplace=True)
         screenResults.set_index('Stock', inplace=True)
         saveResults.set_index('Stock', inplace=True)
