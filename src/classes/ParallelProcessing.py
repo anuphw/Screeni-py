@@ -66,7 +66,8 @@ class StockConsumer(multiprocessing.Process):
                                'MA-Signal': "", 'Volume': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
         saveDictionary = {'Stock': "", 'Consolidating': "", 'Breaking-Out': "",
                           'MA-Signal': "", 'Volume': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
-
+        suppress_stderr=True
+        suppress_stdout=True
         try:
             period = configManager.period
 
@@ -133,7 +134,7 @@ class StockConsumer(multiprocessing.Process):
                 isValidRsi = screener.validateRSI(
                     processedData, screeningDictionary, saveDictionary, minRSI, maxRSI)
                 try:
-                    with SuppressOutput(suppress_stderr=True, suppress_stdout=True):
+                    with SuppressOutput(suppress_stderr=suppress_stderr, suppress_stdout=suppress_stdout):
                         currentTrend = screener.findTrend(
                             processedData,
                             screeningDictionary,
@@ -156,7 +157,7 @@ class StockConsumer(multiprocessing.Process):
                 else:
                     isInsideBar = screener.validateInsideBar(processedData, screeningDictionary, saveDictionary, chartPattern=respChartPattern, daysToLookback=insideBarToLookback)
                 
-                with SuppressOutput(suppress_stderr=True, suppress_stdout=True):
+                with SuppressOutput(suppress_stderr=suppress_stderr, suppress_stdout=suppress_stdout):
                     if maLength is not None and executeOption == 6 and reversalOption == 6:
                         isNR = screener.validateNarrowRange(processedData, screeningDictionary, saveDictionary, nr=maLength)
                     else:
@@ -172,12 +173,12 @@ class StockConsumer(multiprocessing.Process):
 
                 isVCP = False
                 if respChartPattern == 4:
-                    with SuppressOutput(suppress_stderr=True, suppress_stdout=True):
+                    with SuppressOutput(suppress_stderr=suppress_stderr, suppress_stdout=suppress_stdout):
                         isVCP = screener.validateVCP(fullData, screeningDictionary, saveDictionary)
 
                 isBuyingTrendline = False
                 if executeOption == 7 and respChartPattern == 5:
-                    with SuppressOutput(suppress_stderr=True, suppress_stdout=True):
+                    with SuppressOutput(suppress_stderr=suppress_stderr, suppress_stdout=suppress_stdout):
                         isBuyingTrendline = screener.findTrendlines(fullData, screeningDictionary, saveDictionary)
 
                 with self.screenResultsCounter.get_lock():

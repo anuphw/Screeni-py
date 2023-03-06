@@ -126,24 +126,25 @@ class tools:
         smaDev = data['SMA'][0] * maRange / 100
         lmaDev = data['LMA'][0] * maRange / 100
         open, high, low, close, sma, lma = data['Open'][0], data['High'][0], data['Low'][0], data['Close'][0], data['SMA'][0], data['LMA'][0]
+        open5, high5, low5, close5, sma5, lma5 = data['Open'][4], data['High'][4], data['Low'][4], data['Close'][4], data['SMA'][4], data['LMA'][4]
         maReversal = 0
         # Taking Support 50
-        if close > sma and low <= (sma + smaDev):
+        if close > sma and low <= (sma + smaDev) and high5 > sma5:
             screenDict['MA-Signal'] = colorText.BOLD + colorText.GREEN + '50MA-Support' + colorText.END
             saveDict['MA-Signal'] = '50MA-Support'
             maReversal = 1
         # Validating Resistance 50
-        elif close < sma and high >= (sma - smaDev):
+        elif close < sma and high >= (sma - smaDev) and low5 < sma5:
             screenDict['MA-Signal'] = colorText.BOLD + colorText.FAIL + '50MA-Resist' + colorText.END
             saveDict['MA-Signal'] = '50MA-Resist'
             maReversal = -1
         # Taking Support 200
-        elif close > lma and low <= (lma + lmaDev):
+        elif close > lma and low <= (lma + lmaDev) and high5 > lma5:
             screenDict['MA-Signal'] = colorText.BOLD + colorText.GREEN + '200MA-Support' + colorText.END
             saveDict['MA-Signal'] = '200MA-Support'
             maReversal = 1
         # Validating Resistance 200
-        elif close < lma and high >= (lma - lmaDev):
+        elif close < lma and high >= (lma - lmaDev) and low5 < lma5:
             screenDict['MA-Signal'] = colorText.BOLD + colorText.FAIL + '200MA-Resist' + colorText.END
             saveDict['MA-Signal'] = '200MA-Resist'
             maReversal = -1
@@ -159,6 +160,15 @@ class tools:
                 screenDict['MA-Signal'] = colorText.BOLD + colorText.GREEN + 'BullCross-200MA' + colorText.END
                 saveDict['MA-Signal'] = 'BullCross-200MA'
                 maReversal = 1
+            elif high5 < sma5 and close > sma:
+                screenDict['MA-Signal'] = colorText.BOLD + colorText.GREEN + 'BullCross-50MA' + colorText.END
+                saveDict['MA-Signal'] = 'BullCross-50MA'
+                maReversal = 1            
+            # Crossing up 200
+            elif high5 < lma5 and close > lma:
+                screenDict['MA-Signal'] = colorText.BOLD + colorText.GREEN + 'BullCross-200MA' + colorText.END
+                saveDict['MA-Signal'] = 'BullCross-200MA'
+                maReversal = 1
         # For a Bearish Candle
         elif not self.getCandleType(data):
             # Crossing down 50
@@ -171,7 +181,30 @@ class tools:
                 screenDict['MA-Signal'] = colorText.BOLD + colorText.FAIL + 'BearCross-200MA' + colorText.END
                 saveDict['MA-Signal'] = 'BearCross-200MA'
                 maReversal = -1
+            elif low5 > sma5 and close < sma:
+                screenDict['MA-Signal'] = colorText.BOLD + colorText.FAIL + 'BearCross-50MA' + colorText.END
+                saveDict['MA-Signal'] = 'BearCross-50MA'
+                maReversal = -1         
+            # Crossing up 200
+            elif low5 > lma5 and close < lma:
+                screenDict['MA-Signal'] = colorText.BOLD + colorText.FAIL + 'BearCross-200MA' + colorText.END
+                saveDict['MA-Signal'] = 'BearCross-200MA'
+                maReversal = -1
         return maReversal
+
+    # Traded value: Close x Volume (in crores)
+    def validateValue(self, data, screenDict, saveDict, volumeRatio=2.5):
+        data = data.fillna(0)
+        data = data.replace([np.inf, -np.inf], 0)
+        recent = data.head(1)
+        if recent['VolMA'][0] == 0: # Handles Divide by 0 warning
+            saveDict['Value'] = "0"
+            screenDict['Value'] = colorText.BOLD + colorText.WARN + "0" + colorText.END
+            return True
+        value = (recent['Volume'][0]*recent['Close'][0])// 10e7 # Traded value in cr
+        saveDict['Value'] = str(value)
+        screenDict['Value'] = str(value)
+        return False
 
     # Validate if volume of last day is higher than avg
     def validateVolume(self, data, screenDict, saveDict, volumeRatio=2.5):
