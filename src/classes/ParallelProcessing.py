@@ -123,6 +123,8 @@ class StockConsumer(multiprocessing.Process):
                     processedData, screeningDictionary, saveDictionary, maRange=1.25)
                 isVolumeHigh = screener.validateVolume(
                     processedData, screeningDictionary, saveDictionary, volumeRatio=configManager.volumeRatio)
+                _ = screener.validateValue(
+                    processedData, screeningDictionary, saveDictionary)
                 isBreaking = screener.findBreakout(
                     processedData, screeningDictionary, saveDictionary, daysToLookback=configManager.daysToLookback)
                 isLtpValid = screener.validateLTP(

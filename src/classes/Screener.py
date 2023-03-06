@@ -193,7 +193,7 @@ class tools:
         return maReversal
 
     # Traded value: Close x Volume (in crores)
-    def validateValue(self, data, screenDict, saveDict, volumeRatio=2.5):
+    def validateValue(self, data, screenDict, saveDict):
         data = data.fillna(0)
         data = data.replace([np.inf, -np.inf], 0)
         recent = data.head(1)
