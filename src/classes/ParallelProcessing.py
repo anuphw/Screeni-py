@@ -29,7 +29,7 @@ else:
 
 class StockConsumer(multiprocessing.Process):
 
-    def __init__(self, task_queue, result_queue, screenCounter, screenResultsCounter, stockDict, proxyServer, keyboardInterruptEvent):
+    def __init__(self, task_queue, result_queue, screenCounter, screenResultsCounter, stockDict, lotSizes, proxyServer, keyboardInterruptEvent):
         multiprocessing.Process.__init__(self)
         self.multiprocessingForWindows()
         self.task_queue = task_queue
@@ -40,6 +40,7 @@ class StockConsumer(multiprocessing.Process):
         self.proxyServer = proxyServer
         self.keyboardInterruptEvent = keyboardInterruptEvent
         self.isTradingTime = Utility.tools.isTradingTime()
+        self.lotSizes = lotSizes
 
     def run(self):
         # while True:
@@ -63,9 +64,9 @@ class StockConsumer(multiprocessing.Process):
         screenResults = pd.DataFrame(columns=[
             'Stock', 'Consolidating', 'Breaking-Out', 'MA-Signal', 'Volume', 'LTP', 'RSI', 'Trend', 'Pattern'])
         screeningDictionary = {'Stock': "", 'Consolidating': "",  'Breaking-Out': "",
-                               'MA-Signal': "", 'Volume': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
+                               'MA-Signal': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
         saveDictionary = {'Stock': "", 'Consolidating': "", 'Breaking-Out': "",
-                          'MA-Signal': "", 'Volume': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
+                          'MA-Signal': "", 'LTP': 0, 'RSI': 0, 'Trend': "", 'Pattern': ""}
         suppress_stderr=True
         suppress_stdout=True
         try:
@@ -117,14 +118,21 @@ class StockConsumer(multiprocessing.Process):
                 screeningDictionary['Stock'] = colorText.BOLD + \
                      colorText.BLUE + f'\x1B]8;;https://in.tradingview.com/chart?symbol=NSE%3A{stock}\x1B\\{stock}\x1B]8;;\x1B\\' + colorText.END
                 saveDictionary['Stock'] = stock
+                screeningDictionary['LotSize'] = 0
+                saveDictionary['LotSize'] = 0
+                if stock in self.lotSizes:
+                    screeningDictionary['LotSize'] = self.lotSizes[stock]
+                    saveDictionary['LotSize'] = self.lotSizes[stock]
                 consolidationValue = screener.validateConsolidation(
                     processedData, screeningDictionary, saveDictionary, percentage=configManager.consolidationPercentage)
                 isMaReversal = screener.validateMovingAverages(
                     processedData, screeningDictionary, saveDictionary, maRange=1.25)
-                isVolumeHigh = screener.validateVolume(
-                    processedData, screeningDictionary, saveDictionary, volumeRatio=configManager.volumeRatio)
+                isVolumeHigh = False
+                # isVolumeHigh = screener.validateVolume(
+                #     processedData, screeningDictionary, saveDictionary, volumeRatio=configManager.volumeRatio)
                 _ = screener.validateValue(
                     processedData, screeningDictionary, saveDictionary)
+                _ = screener.calculateReturns(processedData,screeningDictionary, saveDictionary)
                 isBreaking = screener.findBreakout(
                     processedData, screeningDictionary, saveDictionary, daysToLookback=configManager.daysToLookback)
                 isLtpValid = screener.validateLTP(

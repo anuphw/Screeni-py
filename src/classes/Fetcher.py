@@ -207,3 +207,7 @@ class tools:
                   f'[+] watchlist_template.xlsx created in {os.getcwd()} as a referance template.' + colorText.END)
             return None
         return data
+
+    def fetchFnOLotSizes():
+        return nse.get_fno_lot_sizes('abc')
+    

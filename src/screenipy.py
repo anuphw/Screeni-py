@@ -167,9 +167,9 @@ def main(testing=False, testBuild=False, downloadOnly=False):
     reversalOption = None
 
     screenResults = pd.DataFrame(columns=[
-                                 'Stock', 'Consolidating', 'Breaking-Out', 'LTP', 'Volume', 'MA-Signal', 'RSI', 'Trend', 'Pattern'])
+                                 'Stock', 'Consolidating', 'Breaking-Out', 'LTP', 'MA-Signal', 'RSI', 'Trend', 'Pattern'])
     saveResults = pd.DataFrame(columns=[
-                               'Stock', 'Consolidating', 'Breaking-Out', 'LTP', 'Volume', 'MA-Signal', 'RSI', 'Trend', 'Pattern'])
+                               'Stock', 'Consolidating', 'Breaking-Out', 'LTP', 'MA-Signal', 'RSI', 'Trend', 'Pattern'])
 
     
     if testBuild:
@@ -296,13 +296,13 @@ def main(testing=False, testBuild=False, downloadOnly=False):
 
         tasks_queue = multiprocessing.JoinableQueue()
         results_queue = multiprocessing.Queue()
-
+        lotSizes = Fetcher.tools.fetchFnOLotSizes()
         totalConsumers = multiprocessing.cpu_count()
         if totalConsumers == 1:
             totalConsumers = 2      # This is required for single core machine
         if configManager.cacheEnabled is True and multiprocessing.cpu_count() > 2:
             totalConsumers -= 1
-        consumers = [StockConsumer(tasks_queue, results_queue, screenCounter, screenResultsCounter, stockDict, proxyServer, keyboardInterruptEvent)
+        consumers = [StockConsumer(tasks_queue, results_queue, screenCounter, screenResultsCounter, stockDict, lotSizes, proxyServer, keyboardInterruptEvent)
                      for _ in range(totalConsumers)]
 
         for worker in consumers:
@@ -371,6 +371,7 @@ def main(testing=False, testBuild=False, downloadOnly=False):
 
         screenResults.sort_values(by=['Value'], ascending=True, inplace=True)
         saveResults.sort_values(by=['Stock'], ascending=True, inplace=True)
+        open('/tmp/screenipy.html','w').write(Utility.tools.generate_html(saveResults))
         screenResults.set_index('Stock', inplace=True)
         saveResults.set_index('Stock', inplace=True)
         screenResults.rename(
@@ -388,7 +389,7 @@ def main(testing=False, testBuild=False, downloadOnly=False):
             inplace=True
         )
         print(tabulate(screenResults, headers='keys', tablefmt='psql'))
-
+        # saveResults.to_html('/tmp/screenipy.html')
         print(colorText.BOLD + colorText.GREEN +
                   f"[+] Found {len(screenResults)} Stocks." + colorText.END)
         if configManager.cacheEnabled and not Utility.tools.isTradingTime() and not testing:

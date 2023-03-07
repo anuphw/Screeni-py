@@ -206,6 +206,33 @@ class tools:
         screenDict['Value'] = value
         return False
 
+    # Traded value: Close x Volume (in crores)
+    def calculateReturns(self, data, screenDict, saveDict):
+        data = data.fillna(0)
+        data = data.replace([np.inf, -np.inf], 0)
+        # 1 day return
+        ret1 = round((data.Close[0]/data.Close[1]-1)*100.0,2)
+        saveDict['Ret_1d'] = ret1
+        if ret1 < 0:
+            screenDict['Ret_1d'] = colorText.BOLD + colorText.FAIL + str(ret1) + colorText.END
+        else:
+            screenDict['Ret_1d'] = colorText.BOLD + colorText.GREEN + str(ret1) + colorText.END
+        # 1 week return
+        ret1 = round((data.Close[0]/data.Close[6]-1)*100.0,2)
+        saveDict['Ret_1w'] = ret1
+        if ret1 < 0:
+            screenDict['Ret_1w'] = colorText.BOLD + colorText.FAIL + str(ret1) + colorText.END
+        else:
+            screenDict['Ret_1w'] = colorText.BOLD + colorText.GREEN + str(ret1) + colorText.END
+        # 1 month return
+        ret1 = round((data.Close[0]/data.Close[21]-1)*100.0,2)
+        saveDict['Ret_1M'] = ret1
+        if ret1 < 0:
+            screenDict['Ret_1M'] = colorText.BOLD + colorText.FAIL + str(ret1) + colorText.END
+        else:
+            screenDict['Ret_1M'] = colorText.BOLD + colorText.GREEN + str(ret1) + colorText.END
+        return False
+
     # Validate if volume of last day is higher than avg
     def validateVolume(self, data, screenDict, saveDict, volumeRatio=2.5):
         data = data.fillna(0)
