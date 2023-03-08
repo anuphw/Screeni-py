@@ -205,7 +205,19 @@ class tools:
         saveDict['Value'] = value
         screenDict['Value'] = value
         return False
-
+    def validateBBWidth(self, data, screenDict, saveDict):
+        data = data.fillna(0)
+        data = data.replace([np.inf, -np.inf], 0)
+        short_sdev = np.std(data['Close'][:20])
+        long_sdev = np.std(data['Close'][:200])
+        value = short_sdev / long_sdev
+        saveDict['BBW'] = round(value,4)
+        if value < 0.1:
+            screenDict['BBW'] = colorText.BOLD + colorText.GREEN + str(round(value,4)) + colorText.END
+        elif value > 0.8:
+            screenDict['BBW'] = colorText.BOLD + colorText.FAIL + str(round(value,4)) + colorText.END
+        else:
+            screenDict['BBW'] = colorText.BOLD + colorText.WARN + str(round(value,4)) + colorText.END
     # Traded value: Close x Volume (in crores)
     def calculateReturns(self, data, screenDict, saveDict):
         data = data.fillna(0)

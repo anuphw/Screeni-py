@@ -16,7 +16,8 @@ import pandas as pd
 from nsetools import Nse
 from classes.ColorText import colorText
 from classes.SuppressOutput import SuppressOutput
-
+from datetime import date, timedelta
+from nsepy import get_history
 nse = Nse()
 
 # Exception class if yfinance stock delisted
@@ -109,14 +110,15 @@ class tools:
     # Fetch stock price data from Yahoo finance
     def fetchStockData(self, stockCode, period, duration, proxyServer, screenResultsCounter, screenCounter, totalSymbols, printCounter=False):
         with SuppressOutput(suppress_stdout=True, suppress_stderr=True):
-            data = yf.download(
-                tickers=stockCode+".NS",
-                period=period,
-                interval=duration,
-                proxy=proxyServer,
-                progress=False,
-                timeout=10
-            )
+            # data = yf.download(
+            #     tickers=stockCode+".NS",
+            #     period=period,
+            #     interval=duration,
+            #     proxy=proxyServer,
+            #     progress=False,
+            #     timeout=10
+            # )
+            data = get_history(stockCode, start=date.today() - timedelta(300), end=date.today())
         if printCounter:
             sys.stdout.write("\r\033[K")
             try:

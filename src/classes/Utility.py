@@ -372,6 +372,7 @@ class tools:
         <script>
             $(document).ready( function () {{
                 $('#table').DataTable({{
+                    pageLength: 20,
                     dom: 'Bfrtip',
                     buttons: [
                         'copy', 'csv', 'excel', 'pdf', 'print'

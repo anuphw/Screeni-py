@@ -133,6 +133,7 @@ class StockConsumer(multiprocessing.Process):
                 _ = screener.validateValue(
                     processedData, screeningDictionary, saveDictionary)
                 _ = screener.calculateReturns(processedData,screeningDictionary, saveDictionary)
+                _ = screener.validateBBWidth(fullData,screeningDictionary, saveDictionary)
                 isBreaking = screener.findBreakout(
                     processedData, screeningDictionary, saveDictionary, daysToLookback=configManager.daysToLookback)
                 isLtpValid = screener.validateLTP(
